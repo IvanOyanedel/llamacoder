@@ -1,0 +1,68 @@
+import { useState } from 'react'
+import { Button } from "/components/ui/button"
+import { AlertCircle } from "lucide-react"
+
+export default function AlertaDrone() {
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState('')
+
+  const sendAlert = () => {
+    setLoading(true)
+    setMessage('')
+
+    if (!navigator.geolocation) {
+      setMessage('Geolocation is not supported by your browser.')
+      setLoading(false)
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords
+        const locationMessage = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
+        sendSMS(locationMessage)
+      },
+      (error) => {
+        setMessage('Unable to retrieve your location.')
+        setLoading(false)
+      }
+    )
+  }
+
+  const sendSMS = (locationMessage: string) => {
+    const phoneNumber = '+56996915507'
+    const smsMessage = `Alerta Drone: ${locationMessage}`
+    const smsUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(smsMessage)}`
+
+    window.open(smsUrl, '_blank')
+    setMessage('Alert sent successfully!')
+    setLoading(false)
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+      <Button
+        onClick={sendAlert}
+        className="bg-red-500 hover:bg-red-600 text-white font-bold py-4 px-8 rounded-full flex items-center space-x-2"
+      >
+        {loading ? (
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+        ) : (
+          <AlertCircle className="h-5 w-5" />
+        )}
+        <span>ALERTA DRONE</span>
+      </Button>
+      {message && (
+        <p className="mt-4 text-gray-600 text-center">{message}</p>
+      )}
+    </div>
+  )
+}
+
+Compartir
+
+Refrescar
+
+Versión 1 de 1
+
+
